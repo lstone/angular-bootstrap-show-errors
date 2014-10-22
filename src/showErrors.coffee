@@ -15,11 +15,18 @@ showErrorsModule.directive 'showErrors',
         showSuccess = options.showSuccess
       showSuccess
 
+    getShowMessages = (options) ->
+      showMessages = showErrorsConfig.showMessages
+      if options && options.showMessages?
+        showMessages = options.showMessages
+      showMessages
+
     linkFn = (scope, el, attrs, formCtrl) ->
       blurred = false
       options = scope.$eval attrs.showErrors
       showSuccess = getShowSuccess options
       trigger = getTrigger options
+      showMessages = getShowMessages options
 
       inputEl   = el[0].querySelector '.form-control[name]'
       inputNgEl = angular.element inputEl
@@ -45,6 +52,8 @@ showErrorsModule.directive 'showErrors',
           # want to run this after the current digest cycle
           el.removeClass 'has-error'
           el.removeClass 'has-success'
+          if showMessages
+            el.find('.se-field-message').hide()
           blurred = false
         , 0, false
 
@@ -52,6 +61,13 @@ showErrorsModule.directive 'showErrors',
         el.toggleClass 'has-error', invalid
         if showSuccess
           el.toggleClass 'has-success', !invalid
+        if showMessages
+          if invalid
+            el.find('.se-field-message').addClass('active')
+            el.find('.se-field-message').show()
+          else
+            el.find('.se-field-message').removeClass('active')
+            el.find('.se-field-message').hide()
 
     {
       restrict: 'A'
@@ -66,6 +82,7 @@ showErrorsModule.directive 'showErrors',
 showErrorsModule.provider 'showErrorsConfig', ->
   _showSuccess = false
   _trigger = 'blur'
+  _showMessages = false
 
   @showSuccess = (showSuccess) ->
     _showSuccess = showSuccess
@@ -73,8 +90,12 @@ showErrorsModule.provider 'showErrorsConfig', ->
   @trigger = (trigger) ->
     _trigger = trigger
 
+  @showMessages = (showMessages) ->
+    _showMessages = showMessages
+
   @$get = ->
     showSuccess: _showSuccess
     trigger: _trigger
+    showMessages: _showMessages
 
   return

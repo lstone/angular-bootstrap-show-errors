@@ -5,7 +5,7 @@
 
   showErrorsModule.directive('showErrors', [
     '$timeout', 'showErrorsConfig', function($timeout, showErrorsConfig) {
-      var getShowSuccess, getTrigger, linkFn;
+      var getShowMessages, getShowSuccess, getTrigger, linkFn;
       getTrigger = function(options) {
         var trigger;
         trigger = showErrorsConfig.trigger;
@@ -22,12 +22,21 @@
         }
         return showSuccess;
       };
+      getShowMessages = function(options) {
+        var showMessages;
+        showMessages = showErrorsConfig.showMessages;
+        if (options && (options.showMessages != null)) {
+          showMessages = options.showMessages;
+        }
+        return showMessages;
+      };
       linkFn = function(scope, el, attrs, formCtrl) {
-        var blurred, inputEl, inputName, inputNgEl, options, showSuccess, toggleClasses, trigger;
+        var blurred, inputEl, inputName, inputNgEl, options, showMessages, showSuccess, toggleClasses, trigger;
         blurred = false;
         options = scope.$eval(attrs.showErrors);
         showSuccess = getShowSuccess(options);
         trigger = getTrigger(options);
+        showMessages = getShowMessages(options);
         inputEl = el[0].querySelector('.form-control[name]');
         inputNgEl = angular.element(inputEl);
         inputName = inputNgEl.attr('name');
@@ -53,13 +62,25 @@
           return $timeout(function() {
             el.removeClass('has-error');
             el.removeClass('has-success');
+            if (showMessages) {
+              el.find('.se-field-message').hide();
+            }
             return blurred = false;
           }, 0, false);
         });
         return toggleClasses = function(invalid) {
           el.toggleClass('has-error', invalid);
           if (showSuccess) {
-            return el.toggleClass('has-success', !invalid);
+            el.toggleClass('has-success', !invalid);
+          }
+          if (showMessages) {
+            if (invalid) {
+              el.find('.se-field-message').addClass('active');
+              return el.find('.se-field-message').show();
+            } else {
+              el.find('.se-field-message').removeClass('active');
+              return el.find('.se-field-message').hide();
+            }
           }
         };
       };
@@ -77,19 +98,24 @@
   ]);
 
   showErrorsModule.provider('showErrorsConfig', function() {
-    var _showSuccess, _trigger;
+    var _showMessages, _showSuccess, _trigger;
     _showSuccess = false;
     _trigger = 'blur';
+    _showMessages = false;
     this.showSuccess = function(showSuccess) {
       return _showSuccess = showSuccess;
     };
     this.trigger = function(trigger) {
       return _trigger = trigger;
     };
+    this.showMessages = function(showMessages) {
+      return _showMessages = showMessages;
+    };
     this.$get = function() {
       return {
         showSuccess: _showSuccess,
-        trigger: _trigger
+        trigger: _trigger,
+        showMessages: _showMessages
       };
     };
   });

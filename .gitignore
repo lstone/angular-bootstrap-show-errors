@@ -1,3 +1,11 @@
 node_modules
 bower_components
 npm-debug.log
+.idea/.name
+.idea/angular-bootstrap-show-errors.iml
+.idea/encodings.xml
+.idea/misc.xml
+.idea/modules.xml
+.idea/scopes/scope_settings.xml
+.idea/vcs.xml
+.idea/workspace.xml
